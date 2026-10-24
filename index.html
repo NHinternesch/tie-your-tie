@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tie Your Tie</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%237A1F2E' d='M11.5 2.5h9l-2 6h-5z'/%3E%3Cpath fill='%237A1F2E' d='M13.2 9.5h5.6l2.7 15.5L16 30.5 10.5 25z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F6F4EF;
+    --ink: #1A1A1A;
+    --muted: #8A867E;
+    --line: #D9D5CC;
+    --tie: #6E1A2B;
+    --tie-stripe: color-mix(in oklab, var(--tie), white 14%);
+    --tie-back: #3A3A3C;
+    --fade: 180ms;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141413;
+      --ink: #ECEAE4;
+      --muted: #7C786F;
+      --line: #2C2B28;
+      --tie: #9A2A3F;
+      --tie-stripe: color-mix(in oklab, var(--tie), white 12%);
+      --tie-back: #4A4A4D;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 14px/1.4 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main {
+    width: min(560px, 100% - 32px);
+    padding: 28px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    margin: 0 0 20px;
+    font: 400 clamp(40px, 8vw, 56px)/1 "Instrument Serif", "Cormorant Garamond", Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+
+  .seg {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    max-width: 100%;
+  }
+  .seg button {
+    font: inherit;
+    font-size: 13px;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .15s, background-color .15s;
+  }
+  .seg button:hover { color: var(--ink); }
+  .seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+  .seg.small button { font-size: 12px; padding: 4px 11px; }
+  @media (max-width: 380px) { .seg button { padding: 6px 10px; } }
+
+  .stage {
+    margin: 16px 0 14px;
+    width: min(100%, 480px, calc(100svh - 270px));
+    min-width: min(100%, 260px);
+    aspect-ratio: 1;
+  }
+  .stage svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+    transition: opacity var(--fade) ease;
+  }
+  .stage svg.fade { opacity: 0; }
+
+  .te {
+    stroke: var(--ink);
+    stroke-width: 1.3;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .te { fill: none; }
+  .tf { fill: var(--tie); stroke: var(--tie); }
+  .tb { fill: var(--tie-back); stroke: var(--tie-back); }
+  .tf, .tb { stroke-width: .6; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .ts { fill: var(--tie-stripe); }
+
+  .scrub { position: relative; width: min(100%, 480px); margin-bottom: 18px; }
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    height: 20px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    --p: 0;
+    --fill: calc(6px + (100% - 12px) * var(--p));
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(to right, var(--ink) 0 var(--fill), var(--line) var(--fill) 100%);
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    margin-top: -5px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+  input[type=range]::-moz-range-track { height: 2px; border-radius: 1px; background: var(--line); }
+  input[type=range]::-moz-range-progress { height: 2px; border-radius: 1px; background: var(--ink); }
+  input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: var(--ink); }
+  .ticks { position: relative; height: 4px; margin-top: 2px; pointer-events: none; }
+  .ticks i {
+    position: absolute;
+    top: 0;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--line);
+    transform: translateX(-50%);
+  }
+  .ticks i.on { background: var(--muted); }
+
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  input[type=range]:focus-visible { outline-offset: 4px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Tie Your Tie</h1>
+
+  <div class="seg" id="knots" role="radiogroup" aria-label="Knot">
+    <button type="button" role="radio" data-knot="four-in-hand">Four-in-Hand</button>
+    <button type="button" role="radio" data-knot="half-windsor">Half Windsor</button>
+    <button type="button" role="radio" data-knot="windsor">Windsor</button>
+  </div>
+
+  <figure class="stage">
+    <svg id="art" viewBox="16 2 68 68" role="img" aria-label="Animation: tying a Four-in-Hand"></svg>
+  </figure>
+
+  <div class="scrub">
+    <input type="range" id="scrub" min="0" max="1000" step="1" value="0" aria-label="Animation position">
+    <div class="ticks" id="ticks"></div>
+  </div>
+
+  <div class="seg small" id="speed" role="radiogroup" aria-label="Speed">
+    <button type="button" role="radio" data-speed="0.5">0.5×</button>
+    <button type="button" role="radio" data-speed="1">1×</button>
+    <button type="button" role="radio" data-speed="2">2×</button>
+  </div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------- Tie model ----------
+     The tie is one ribbon of N samples from the narrow tip (u = 0) to the wide tip (u = 1).
+     Each keyframe is a list of waypoints [x, y, z, flags, width scale] along the ribbon; z (layer)
+     and flags apply to the stretch from that waypoint to the next.
+     Flags: b = back face showing, f = fold edge here, L / R = pinned where the tie leaves
+     the collar on the left / right, so the neck band stays put between keyframes. */
+
+  const N = 180;
+  const SUB = 14;
+  const PIN = { L: 0.26, R: 0.47 };
+  const WIDTH = [[0, 3.5], [0.18, 3.1], [0.26, 2.5], [0.47, 2.5], [0.56, 3.8], [0.72, 5.2], [0.87, 6.8], [1, 7.8]];
+  const STRIPE_GAP = 0.015, STRIPE_W = 0.0036;
+
+  const widthAt = u => {
+    for (let i = 1; i < WIDTH.length; i++) {
+      const [b, wb] = WIDTH[i];
+      if (u <= b) {
+        const [a, wa] = WIDTH[i - 1];
+        return wa + (wb - wa) * (u - a) / (b - a);
+      }
+    }
+    return WIDTH[WIDTH.length - 1][1];
+  };
+  const WID = Float64Array.from({ length: N }, (_, i) => widthAt(i / (N - 1)));
+
+  // Stretches of the tie at z <= -9 are buried inside the knot and not drawn.
+
+  /* ---------- Keyframes ---------- */
+
+  const T = (...parts) => [].concat(...parts);
+  const F = w => ({ w });
+  const S = w => ({ w, sub: true });
+
+  // Narrow blade and the band around the neck.
+  const ND = [[46.6, 60, 0], [46.3, 45, 0], [46.1, 37, -3]];
+  const NT = [[50, 72, 0], [50, 52, 0], [49.6, 36, 0], [48.4, 27.5, -3]];
+  const LOOP = [[45.5, 24, -3, 'L'], [44.2, 18, -3], [44.6, 12.8, -6, 'fb'], [47.4, 10.4, -6, 'b'], [52.6, 10.4, -6, 'b'], [55.4, 12.8, -3, 'f'], [55.8, 18, -3], [54.5, 24, -3, 'R']];
+
+  // Loose-knot pieces of the wide blade.
+  const XO = [[53.6, 31, 2], [49.5, 36, 2], [45.5, 38.6, 2], [43.6, 40, 2]];
+  const BEHIND = [[44.6, 41.8, -1, 'fb'], [48, 41.6, -1, 'b'], [52, 42, -1, 'b']];
+  const BAND = [[54.4, 41, -1, 'b'], [55.2, 39.4, 3, 'f'], [50, 38, 3], [44, 38.8, 3]];
+  const UP = z => [[54.4, 41, -1, 'b'], [55.4, 39.2, z, 'f'], [54.6, 34, z], [52.4, 29.4, z]];
+  const THRU = z => T(UP(z), [[50.8, 25.4, z], [50.6, 23.8, -1, 'fb'], [53.4, 26.6, -1, 'b'], [56.2, 32, -1, 'b'], [57.4, 38.6, -1, 'b']]);
+  const BAND2 = z => [[57, 40.6, z, 'f'], [50, 39.6, z], [43.6, 40.4, z]];
+
+  const drape = F(T(ND, LOOP, [[54.4, 37, 0], [55, 55, 0], [55.6, 96, 0]]));
+  const cross = F(T(ND, LOOP, [[53.6, 31, 2], [49.5, 36.5, 2], [45.6, 41, 2], [42.2, 52, 2], [40.4, 94, 2]]));
+  const tuckLeft = (pre, x = 44.4, y = 41.8) => S(T(pre, [[x, y, -1, 'fb'], [x - 1, y + 10, -1, 'b'], [x - 2, 88, -1, 'b']]));
+  const upThrough = (pre, x, y, z) => T(pre, [[x, y, -1, 'fb'], [x + 2.2, y - 4.6, -1, 'b'], [48.4, 28.4, z, 'b'], [50, 24, z, 'b'], [50.4, 12, z, 'b'], [50.8, -6, z, 'b']]);
+  const downFront = (pre, x, y, z) => T(pre, [[x, y, -1, 'fb'], [x + 2.2, y - 4.6, -1, 'b'], [48.4, 28.4, -1, 'b'], [50, 25, -1, 'b'], [50.8, 24.2, z, 'f'], [50.6, 30, z], [50.2, 44, z], [50, 90, z]]);
+  const swingRight = (pre, z) => S(T(pre, [[54.4, 41, -1, 'b'], [55.6, 40, z, 'f'], [57.4, 47, z], [58.4, 64, z], [58.8, 92, z]]));
+
+  const KNOTS = [
+    {
+      id: 'four-in-hand', name: 'Four-in-Hand', frames: [
+        drape,
+        cross,
+        tuckLeft(T(ND, LOOP, XO)),
+        F(T(ND, LOOP, XO, BEHIND, [[55, 48, -1, 'b'], [56, 92, -1, 'b']])),
+        swingRight(T(ND, LOOP, XO, BEHIND), 3),
+        F(T(ND, LOOP, XO, BEHIND, BAND, [[41.6, 48, 3], [39.8, 90, 3]])),
+        tuckLeft(T(ND, LOOP, XO, BEHIND, BAND), 42.4, 40.4),
+        F(upThrough(T(ND, LOOP, XO, BEHIND, BAND), 42.4, 37.6, 1.5)),
+        S(downFront(T(ND, LOOP, XO, BEHIND, BAND), 42.4, 37.6, 2.5)),
+        F(T(NT, LOOP, [
+          [53, 27, -9], [48, 30.5, -9], [46, 31, -9], [50, 32.5, -9], [56.4, 30, -9, '', 1.25],
+          [54.6, 28.9, 3, 'f', 1.25], [50, 27.1, 3, '', 1.25], [45.4, 28.9, -9, 'f', 1.25],
+          [44, 30, -9], [46, 25, -9], [50.4, 23, -9],
+          [50.3, 28, 2.5], [50.1, 34, 2.5], [50, 60, 2.5], [50, 90, 2.5],
+        ])),
+      ],
+    },
+    {
+      id: 'half-windsor', name: 'Half Windsor', frames: [
+        drape,
+        cross,
+        tuckLeft(T(ND, LOOP, XO)),
+        F(T(ND, LOOP, XO, BEHIND, [[55, 48, -1, 'b'], [56, 92, -1, 'b']])),
+        swingRight(T(ND, LOOP, XO, BEHIND), 4),
+        F(T(ND, LOOP, XO, BEHIND, UP(4), [[50.6, 24.6, 4], [50.2, 12, 4], [50, -6, 4]])),
+        F(T(ND, LOOP, XO, BEHIND, THRU(4), [[58.4, 56, -1, 'b'], [59, 92, -1, 'b']])),
+        S(T(ND, LOOP, XO, BEHIND, THRU(4), [[57, 41.6, 5, 'f'], [58.6, 50, 5], [59.2, 66, 5], [59.4, 92, 5]])),
+        F(T(ND, LOOP, XO, BEHIND, THRU(4), BAND2(5), [[41.4, 49, 5], [39.8, 90, 5]])),
+        tuckLeft(T(ND, LOOP, XO, BEHIND, THRU(4), BAND2(5)), 42, 42),
+        F(upThrough(T(ND, LOOP, XO, BEHIND, THRU(4), BAND2(5)), 42, 39, 1.5)),
+        S(downFront(T(ND, LOOP, XO, BEHIND, THRU(4), BAND2(5)), 42, 39, 4.5)),
+        F(T(NT, LOOP, [
+          [53, 27, -9], [48, 30.5, -9], [46, 31, -9], [50, 32.5, -9], [57.6, 22.6, -9],
+          [56.2, 24.6, 2.2, 'f'], [54, 27.8, 2.2], [52, 30.4, -9],
+          [51, 31.6, -9], [52, 33, -9], [57.2, 30.4, -9, '', 1.3],
+          [55.2, 29.1, 3, 'f', 1.3], [50, 27, 3, '', 1.3], [44.8, 29.1, -9, 'f', 1.3],
+          [43.4, 30.4, -9], [46, 25, -9], [50.4, 23, -9],
+          [50.3, 28.4, 2.6], [50.1, 35, 2.6], [50, 60, 2.6], [50, 92, 2.6],
+        ])),
+      ],
+    },
+    {
+      id: 'windsor', name: 'Windsor', frames: (() => {
+        const XW = [[53.6, 31, 2], [49.5, 36, 2], [45.8, 38.8, 2]];
+        const UPL = [[44.8, 38.2, -1, 'fb'], [46.4, 33, -1, 'b'], [48.6, 28.4, -1, 'b'], [49.8, 24.6, -1, 'b']];
+        const DOWNL = [[49.4, 23.8, 4, 'f'], [47, 27, 4], [44, 32.6, 4], [42.8, 37.4, 4]];
+        const BEHINDW = [[43.6, 40, -1.5, 'fb'], [48, 41.4, -1.5, 'b'], [52, 41.6, -1.5, 'b']];
+        const base = T(ND, LOOP, XW, UPL, DOWNL, BEHINDW);
+        const UPW = [[54.4, 40.6, -1.5, 'b'], [55.4, 39, 5, 'f'], [54.6, 34, 5], [52.4, 29.4, 5]];
+        const THRUW = T(UPW, [[50.8, 25.4, 5], [50.6, 23.8, -1, 'fb'], [53.4, 26.6, -1, 'b'], [56.2, 32, -1, 'b'], [57.4, 38.6, -1, 'b']]);
+        return [
+          drape,
+          cross,
+          tuckLeft(T(ND, LOOP, XW), 44.8, 40.6),
+          F(T(ND, LOOP, XW, [[44.8, 38.2, -1, 'fb'], [46.4, 33, -1, 'b'], [48.6, 28.4, 1.5, 'b'], [50, 24, 1.5, 'b'], [50.2, 12, 1.5, 'b'], [50.4, -6, 1.5, 'b']])),
+          F(T(ND, LOOP, XW, UPL, DOWNL, [[41.6, 48, 4], [40.4, 90, 4]])),
+          S(T(ND, LOOP, XW, UPL, DOWNL, [[43.4, 39.8, -1.5, 'fb'], [43, 52, -1.5, 'b'], [42.4, 88, -1.5, 'b']])),
+          F(T(base, [[55, 48, -1.5, 'b'], [56, 92, -1.5, 'b']])),
+          S(T(base, UPW, [[50.6, 24.6, 5], [50.2, 12, 5], [50, -6, 5]])),
+          F(T(base, THRUW, [[58.4, 56, -1, 'b'], [59, 92, -1, 'b']])),
+          S(T(base, THRUW, [[57, 41.6, 6, 'f'], [58.6, 50, 6], [59.2, 66, 6], [59.4, 92, 6]])),
+          F(T(base, THRUW, BAND2(6), [[41.4, 49, 6], [39.8, 90, 6]])),
+          tuckLeft(T(base, THRUW, BAND2(6)), 42, 42),
+          F(upThrough(T(base, THRUW, BAND2(6)), 42, 39, 1.5)),
+          S(downFront(T(base, THRUW, BAND2(6)), 42, 39, 5.5)),
+          F(T(NT, LOOP, [
+            [53, 27, -9], [48, 30.5, -9], [42.4, 21.4, -9],
+            [43.8, 23.8, 2.3, 'f'], [45.8, 27.4, 2.3], [47.8, 30.8, -9],
+            [49, 31.6, -9], [52, 33, -9], [57.6, 21.4, -9],
+            [56.2, 23.8, 2.4, 'f'], [54.2, 27.4, 2.4], [52.2, 30.8, -9],
+            [51, 31.6, -9], [52, 33, -9], [57.4, 31.6, -9, '', 1.2],
+            [55, 29.6, 3, 'f', 1.2], [50, 26.8, 3, '', 1.2], [45, 29.6, -9, 'f', 1.2],
+            [42.6, 31.6, -9], [46, 25, -9], [50.4, 23, -9],
+            [50.3, 28.6, 2.8], [50.1, 36, 2.8], [50, 62, 2.8], [50, 92, 2.8],
+          ])),
+        ];
+      })(),
+    },
+  ];
+
+  /* ---------- Geometry ---------- */
+
+  // Centripetal Catmull-Rom through waypoints.
+  function cr(p0, p1, p2, p3, t) {
+    const d = (a, b) => Math.max(Math.sqrt(Math.hypot(b.x - a.x, b.y - a.y)), 1e-4);
+    const t1 = d(p0, p1), t2 = t1 + d(p1, p2), t3 = t2 + d(p2, p3);
+    const s = t1 + (t2 - t1) * t;
+    const L = (a, b, ta, tb) => {
+      const k = (s - ta) / (tb - ta);
+      return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+    };
+    const a1 = L(p0, p1, 0, t1), a2 = L(p1, p2, t1, t2), a3 = L(p2, p3, t2, t3);
+    const b1 = L(a1, a2, 0, t2), b2 = L(a2, a3, t1, t3);
+    return L(b1, b2, t1, t2);
+  }
+
+  // Waypoints → N evenly spaced fabric samples (x, y, layer, back face, fold).
+  function resample(wps) {
+    const P = wps.map(([x, y, z, f = '', ws = 1]) => ({
+      x, y, z, ws, b: f.includes('b'), f: f.includes('f'),
+      u: f.includes('L') ? PIN.L : f.includes('R') ? PIN.R : null,
+    }));
+    const n = P.length;
+    P[0].u = 0;
+    P[n - 1].u = 1;
+    const ext = (a, b) => ({ x: 2 * a.x - b.x, y: 2 * a.y - b.y });
+
+    const dx = [], dy = [], dk = [], dw = [];
+    for (let k = 0; k < n - 1; k++) {
+      const p0 = k > 0 ? P[k - 1] : ext(P[0], P[1]);
+      const p3 = k + 2 < n ? P[k + 2] : ext(P[n - 1], P[n - 2]);
+      for (let j = 0; j < SUB; j++) {
+        const q = cr(p0, P[k], P[k + 1], p3, j / SUB);
+        dx.push(q.x); dy.push(q.y); dk.push(k);
+        dw.push(P[k].ws + (P[k + 1].ws - P[k].ws) * j / SUB);
+      }
+    }
+    dx.push(P[n - 1].x); dy.push(P[n - 1].y); dk.push(n - 1); dw.push(P[n - 1].ws);
+
+    const m = dx.length, arc = new Float64Array(m);
+    for (let i = 1; i < m; i++) arc[i] = arc[i - 1] + Math.hypot(dx[i] - dx[i - 1], dy[i] - dy[i - 1]);
+    const wa = P.map((_, k) => arc[k * SUB]);
+
+    let last = 0;
+    for (let k = 1; k < n; k++) {
+      if (P[k].u === null) continue;
+      for (let j = last + 1; j < k; j++) {
+        P[j].u = P[last].u + (P[k].u - P[last].u) * (wa[j] - wa[last]) / ((wa[k] - wa[last]) || 1);
+      }
+      last = k;
+    }
+
+    const du = new Float64Array(m);
+    for (let i = 0; i < m; i++) {
+      const k = Math.min(dk[i], n - 2);
+      du[i] = P[k].u + (P[k + 1].u - P[k].u) * (arc[i] - wa[k]) / ((wa[k + 1] - wa[k]) || 1);
+    }
+
+    const out = { x: new Float64Array(N), y: new Float64Array(N), w: new Float64Array(N), z: new Float64Array(N), b: new Uint8Array(N), f: new Uint8Array(N) };
+    let i = 0, prevK = -1;
+    for (let s = 0; s < N; s++) {
+      const u = s / (N - 1);
+      while (i < m - 2 && du[i + 1] < u) i++;
+      const t = Math.min(Math.max((u - du[i]) / ((du[i + 1] - du[i]) || 1), 0), 1);
+      out.x[s] = dx[i] + (dx[i + 1] - dx[i]) * t;
+      out.y[s] = dy[i] + (dy[i + 1] - dy[i]) * t;
+      out.w[s] = dw[i] + (dw[i + 1] - dw[i]) * t;
+      const k = Math.min(dk[i], n - 2);
+      out.z[s] = P[k].z;
+      out.b[s] = P[k].b ? 1 : 0;
+      out.f[s] = k !== prevK && P[k].f && s > 0 ? 1 : 0;
+      prevK = k;
+    }
+    return out;
+  }
+
+  function compile(knot) {
+    const frames = knot.frames.map(fr => ({ sub: !!fr.sub, d: resample(fr.w) }));
+    const mains = [];
+    frames.forEach((fr, i) => { if (!fr.sub) mains.push(i); });
+    const segs = [], arrivals = [];
+    let t = 0;
+    mains.forEach((fi, m) => {
+      arrivals.push(t);
+      const hold = m === mains.length - 1 ? 1200 : 600;
+      segs.push({ hold: true, t0: t, dur: hold, frame: frames[fi].d, step: m });
+      t += hold;
+      if (m < mains.length - 1) {
+        const group = frames.slice(fi, mains[m + 1] + 1).map(fr => fr.d);
+        const dur = 900 * (1 + 0.5 * (group.length - 2));
+        segs.push({ hold: false, t0: t, dur, group, step: m + 1 });
+        t += dur;
+      }
+    });
+    return { ...knot, segs, arrivals, T: t, steps: mains.length };
+  }
+
+  const ease = t => 0.5 - 0.5 * Math.cos(Math.PI * t);
+  const crU = (a, b, c, d, t) =>
+    0.5 * (2 * b + (c - a) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (3 * b - a - 3 * c + d) * t * t * t);
+
+  function evaluate(k, time) {
+    let seg = k.segs[k.segs.length - 1];
+    for (const s of k.segs) if (time < s.t0 + s.dur) { seg = s; break; }
+    if (seg.hold) return { d: seg.frame, step: seg.step + 1 };
+    const G = seg.group, n = G.length - 1;
+    const pos = ease(Math.min(Math.max((time - seg.t0) / seg.dur, 0), 1)) * n;
+    const j = Math.min(Math.floor(pos), n - 1), f = pos - j;
+    const a = G[Math.max(j - 1, 0)], b = G[j], c = G[j + 1], e = G[Math.min(j + 2, n)];
+    const near = f < 0.5 ? b : c;
+    const d = { x: new Float64Array(N), y: new Float64Array(N), w: new Float64Array(N), z: near.z, b: near.b, f: near.f };
+    for (let i = 0; i < N; i++) {
+      d.x[i] = crU(a.x[i], b.x[i], c.x[i], e.x[i], f);
+      d.y[i] = crU(a.y[i], b.y[i], c.y[i], e.y[i], f);
+      d.w[i] = b.w[i] + (c.w[i] - b.w[i]) * f;
+    }
+    return { d, step: seg.step + 1 };
+  }
+
+  /* ---------- Rendering ---------- */
+
+  const n2 = v => Math.round(v * 100) / 100;
+
+  function draw({ x: X, y: Y, w: W, z: Z, b: B, f: Fo }) {
+    const len = new Float64Array(N);
+    for (let i = 1; i < N; i++) len[i] = len[i - 1] + Math.hypot(X[i] - X[i - 1], Y[i] - Y[i - 1]);
+    const total = len[N - 1];
+
+    const lx = new Float64Array(N), ly = new Float64Array(N), rx = new Float64Array(N), ry = new Float64Array(N);
+    const H = new Float64Array(N);
+    for (let i = 0; i < N; i++) {
+      const i0 = Math.max(i - 1, 0), i1 = Math.min(i + 1, N - 1);
+      let tx = X[i1] - X[i0], ty = Y[i1] - Y[i0];
+      const m = Math.hypot(tx, ty) || 1;
+      tx /= m; ty /= m;
+      const h = H[i] = Math.min(WID[i] * W[i] / 2, len[i], total - len[i]); // pointed tips
+      lx[i] = X[i] - ty * h; ly[i] = Y[i] + tx * h;
+      rx[i] = X[i] + ty * h; ry[i] = Y[i] - tx * h;
+    }
+    const at = (ex, ey, u) => {
+      const fi = u * (N - 1), i = Math.min(Math.floor(fi), N - 2), t = fi - i;
+      return n2(ex[i] + (ex[i + 1] - ex[i]) * t) + ' ' + n2(ey[i] + (ey[i + 1] - ey[i]) * t);
+    };
+    const pt = (ex, ey, i) => n2(ex[i]) + ' ' + n2(ey[i]);
+
+    const runs = [];
+    let a = 0;
+    for (let i = 1; i < N; i++) {
+      if (Z[i] !== Z[a] || B[i] !== B[a] || Fo[i]) { runs.push([a, i]); a = i; }
+    }
+    runs.push([a, N - 1]);
+
+    const items = [];
+    runs.forEach(([a, e], r) => {
+      const z = Z[a];
+      if (z <= -9) return;
+      let left = '', right = '';
+      for (let i = a; i <= e; i++) left += (i === a ? 'M' : 'L') + pt(lx, ly, i);
+      for (let i = e; i >= a; i--) right += 'L' + pt(rx, ry, i);
+      const fill = left + right + 'Z';
+
+      let edges = left;
+      for (let i = a; i <= e; i++) edges += (i === a ? 'M' : 'L') + pt(rx, ry, i);
+      if (Fo[a] && r > 0 && Z[runs[r - 1][0]] <= z) edges += 'M' + pt(lx, ly, a) + 'L' + pt(rx, ry, a);
+      if (e < N - 1 && Fo[e] && Z[runs[r + 1][0]] < z) edges += 'M' + pt(lx, ly, e) + 'L' + pt(rx, ry, e);
+
+      let stripes = '';
+      if (!B[a]) {
+        const ua = a / (N - 1), ue = e / (N - 1);
+        for (let u0 = Math.ceil(ua / STRIPE_GAP) * STRIPE_GAP; u0 < ue; u0 += STRIPE_GAP) {
+          const off = 1.6 * H[Math.round(u0 * (N - 1))] / total;
+          if (u0 + off + STRIPE_W > ue) break;
+          stripes += 'M' + at(lx, ly, u0) + 'L' + at(lx, ly, u0 + STRIPE_W) +
+                     'L' + at(rx, ry, u0 + off + STRIPE_W) + 'L' + at(rx, ry, u0 + off) + 'Z';
+        }
+      }
+
+      items.push([z, `<path class="${B[a] ? 'tb' : 'tf'}" d="${fill}"/>` +
+        (stripes ? `<path class="ts" d="${stripes}"/>` : '') +
+        `<path class="te" d="${edges}"/>`]);
+    });
+    items.sort((p, q) => p[0] - q[0]);
+    return items.map(it => it[1]).join('');
+  }
+
+  /* ---------- App ---------- */
+
+  const $ = id => document.getElementById(id);
+  const svg = $('art'), scrub = $('scrub'), ticks = $('ticks');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const FADE = 180;
+  const knots = KNOTS.map(compile);
+
+  let knot = null, time = 0, speed = 1;
+  let scrubbing = false, held = false, fading = false, swapping = false;
+  let resumeTimer = 0, fadeTimers = [], last = 0, dirty = true;
+
+  const playing = () => !reduced.matches && !scrubbing && !held && !fading && !swapping;
+
+  function paint() {
+    const { d, step } = evaluate(knot, time);
+    svg.innerHTML = draw(d);
+    const p = time / knot.T;
+    if (!scrubbing) scrub.value = Math.round(p * 1000);
+    scrub.style.setProperty('--p', p);
+    scrub.setAttribute('aria-valuetext', `Step ${step} of ${knot.steps}`);
+    [...ticks.children].forEach((dot, i) => dot.classList.toggle('on', knot.arrivals[i] <= time));
+  }
+
+  function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = last ? Math.min(now - last, 100) : 0;
+    last = now;
+    if (document.hidden) return;
+    if (playing()) {
+      time += dt * speed;
+      if (time >= knot.T) { time = knot.T; restart(); }
+      dirty = true;
+    }
+    if (dirty) { dirty = false; paint(); }
+  }
+
+  function restart() {
+    fading = true;
+    svg.classList.add('fade');
+    fadeTimers.push(setTimeout(() => {
+      time = 0;
+      dirty = true;
+      svg.classList.remove('fade');
+      fadeTimers.push(setTimeout(() => { fading = false; }, FADE));
+    }, FADE + 20));
+  }
+
+  function cancelFade() {
+    fadeTimers.forEach(clearTimeout);
+    fadeTimers = [];
+    fading = false;
+    if (!swapping) svg.classList.remove('fade');
+  }
+
+  function buildTicks() {
+    ticks.innerHTML = knot.arrivals
+      .map(a => `<i style="left: calc(6px + (100% - 12px) * ${a / knot.T})"></i>`).join('');
+  }
+
+  function useKnot(k) {
+    knot = k;
+    time = 0;
+    svg.setAttribute('aria-label', `Animation: tying a ${k.name}`);
+    buildTicks();
+    dirty = true;
+  }
+
+  function selectKnot(id) {
+    const k = knots.find(k => k.id === id) || knots[0];
+    knotGroup.check(k.id);
+    if (history.replaceState) history.replaceState(null, '', '#' + k.id);
+    if (k === knot) return;
+    if (!knot) return useKnot(k);
+    cancelFade();
+    swapping = true;
+    svg.classList.add('fade');
+    setTimeout(() => {
+      useKnot(k);
+      svg.classList.remove('fade');
+      setTimeout(() => { swapping = false; }, FADE);
+    }, FADE);
+  }
+
+  function radiogroup(el, attr, onPick) {
+    const items = [...el.querySelectorAll('[role=radio]')];
+    const check = val => items.forEach(b => {
+      const on = b.dataset[attr] === String(val);
+      b.setAttribute('aria-checked', on);
+      b.tabIndex = on ? 0 : -1;
+    });
+    items.forEach((b, i) => {
+      b.addEventListener('click', () => onPick(b.dataset[attr]));
+      b.addEventListener('keydown', e => {
+        const dir = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (!dir) return;
+        e.preventDefault();
+        const next = items[(i + dir + items.length) % items.length];
+        onPick(next.dataset[attr]);
+        next.focus();
+      });
+    });
+    return { check };
+  }
+
+  const knotGroup = radiogroup($('knots'), 'knot', selectKnot);
+  const speedGroup = radiogroup($('speed'), 'speed', v => { speed = +v; speedGroup.check(v); });
+  speedGroup.check('1');
+
+  // Pause while the slider is in use; resume on release (pointer) or shortly after the last key.
+  function holdForKeys() {
+    held = true;
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => { held = false; }, 1500);
+  }
+  scrub.addEventListener('pointerdown', () => { scrubbing = true; cancelFade(); });
+  const endScrub = () => { scrubbing = false; };
+  addEventListener('pointerup', endScrub);
+  addEventListener('pointercancel', endScrub);
+  scrub.addEventListener('input', () => {
+    cancelFade();
+    time = scrub.value / 1000 * knot.T;
+    if (!scrubbing) holdForKeys();
+    dirty = true;
+  });
+  scrub.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    cancelFade();
+    const dir = e.key === 'ArrowRight' ? 1 : -1;
+    if (e.shiftKey) {
+      time = Math.min(Math.max(time + dir * knot.T / 200, 0), knot.T);
+    } else if (dir > 0) {
+      time = knot.arrivals.find(a => a > time + 1) ?? knot.T;
+    } else {
+      time = [...knot.arrivals].reverse().find(a => a < time - 1) ?? 0;
+    }
+    holdForKeys();
+    dirty = true;
+  });
+
+  addEventListener('hashchange', () => selectKnot(location.hash.slice(1)));
+  selectKnot(location.hash.slice(1));
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
