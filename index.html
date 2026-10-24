@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%237A1F2E' d='M11.5 2.5h9l-2 6h-5z'/%3E%3Cpath fill='%237A1F2E' d='M13.2 9.5h5.6l2.7 15.5L16 30.5 10.5 25z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
 <style>
   :root {
     --bg: #F6F4EF;
@@ -52,9 +52,9 @@
     align-items: center;
   }
   h1 {
-    margin: 0 0 20px;
-    font: 400 clamp(40px, 8vw, 56px)/1 "Instrument Serif", "Cormorant Garamond", Georgia, serif;
-    letter-spacing: -0.015em;
+    margin: 0 0 56px;
+    font: 500 clamp(48px, 11vw, 72px)/1 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    letter-spacing: -0.035em;
   }
 
   .seg {
@@ -83,8 +83,8 @@
   @media (max-width: 380px) { .seg button { padding: 6px 10px; } }
 
   .stage {
-    margin: 16px 0 14px;
-    width: min(100%, 480px, calc(100svh - 270px));
+    margin: 16px 0 32px;
+    width: min(100%, 480px, calc(100svh - 340px));
     min-width: min(100%, 260px);
     aspect-ratio: 1;
   }
@@ -153,6 +153,17 @@
   }
   .ticks i.on { background: var(--muted); }
 
+  .footer {
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .footer a:hover { color: var(--ink); }
+  @media (max-width: 768px) { .footer { right: 8px; bottom: 8px; font-size: 11px; } }
+
   :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
   input[type=range]:focus-visible { outline-offset: 4px; border-radius: 4px; }
 </style>
@@ -182,6 +193,8 @@
     <button type="button" role="radio" data-speed="2">2×</button>
   </div>
 </main>
+
+<div class="footer">By <a href="https://hinternesch.com" target="_blank" rel="noopener">Nicolas Hinternesch</a></div>
 
 <script>
 (() => {
